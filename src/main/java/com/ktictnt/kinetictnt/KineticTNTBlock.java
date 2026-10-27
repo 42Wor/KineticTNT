@@ -10,19 +10,18 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class KineticTNTBlock extends FallingBlock {
 
-    // Required by FallingBlock in 1.21+: a codec that can serialize this block type
+    // Codec required by modern Minecraft
     public static final MapCodec<KineticTNTBlock> CODEC = simpleCodec(KineticTNTBlock::new);
-
-    @Override
-    public MapCodec<? extends FallingBlock> codec() {
-        return CODEC;
-    }
 
     public KineticTNTBlock(Properties properties) {
         super(properties);
     }
 
-    // Required by modern FallingBlock for the falling dust particle color
+    @Override
+    protected MapCodec<? extends FallingBlock> codec() {
+        return CODEC;
+    }
+
     @Override
     public int getDustColor(BlockState state, BlockGetter level, BlockPos pos) {
         return 0xFFFFFFFF;
@@ -30,19 +29,22 @@ public class KineticTNTBlock extends FallingBlock {
 
     @Override
     public void onLand(Level level, BlockPos pos, BlockState state, BlockState replaceableState, FallingBlockEntity fallingBlock) {
-        // In modern Minecraft, fallDistance is a double
-        double fallDistance = fallingBlock.fallDistance;
+        // Calculate the height difference from where it started to where it landed
+        int fallDistance = fallingBlock.getStartPos().getY() - pos.getY();
 
-        // isClientSide() is a method call in modern versions
-        if (!level.isClientSide() && fallDistance >= 3.0) {
-            float explosionRadius = 4.0F + (float) ((fallDistance - 3.0) * 0.5);
+        // Only explode on the server side if it fell 3 or more blocks
+        if (!level.isClientSide() && fallDistance >= 3) {
+            // Base radius 4.0F + 0.5F per block dropped past 3
+            float explosionRadius = 4.0F + (float) ((fallDistance - 3) * 0.5F);
 
+            // Remove the block
             level.removeBlock(pos, false);
 
+            // Detonate
             level.explode(
                     null,
                     pos.getX() + 0.5D,
-                    pos.getY(),
+                    pos.getY() + 0.5D,
                     pos.getZ() + 0.5D,
                     explosionRadius,
                     Level.ExplosionInteraction.TNT
