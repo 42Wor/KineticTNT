@@ -38,6 +38,14 @@ $$\text{Blast Radius} = 4.0 + \Big((\Delta Y - 3) \times 0.5\Big)$$
 
 *(Note: Maximum radius is hard-capped at **25.0** to prevent crashing your game or freezing the server!)*
 
+```mermaid
+xychart-beta
+    title "Kinetic TNT: Blast Radius vs Drop Height"
+    x-axis "Drop Height (Blocks)" ["0", "1", "2", "3", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "60"]
+    y-axis "Blast Radius" 0 --> 30
+    line [0, 0, 0, 4, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 25, 25]
+```
+
 ---
 
 ### 2. Ballistic Shockwave Propulsion (Chain Reactions)
@@ -49,9 +57,9 @@ $$\vec{D} = \text{Target Pos} - \text{Blast Epicenter}$$
 $$\hat{u} = \frac{\vec{D}}{\|\vec{D}\|} \quad \text{(Unit Direction Vector)}$$
 
 #### Blast Impulse (Speed):
-The shockwave follows the **Inverse-Distance Law**—the closer the block is to the initial bomb, the harder it gets thrown:
+The shockwave follows the **Inverse-Distance Law**—the closer the block is to the initial bomb, the harder it gets thrown (with a minimum launch floor of 0.8):
 
-$$\text{Launch Speed} = \frac{2.5}{\text{Distance} + 0.5}$$
+$$\text{Launch Speed} = \max\left(0.8,\ \frac{2.5}{\text{Distance} + 0.5}\right)$$
 
 To give it a natural ballistic mortar arc across the sky, an upward lift coefficient ($+0.4$ to $+1.2$) is automatically injected into the vertical velocity:
 
